@@ -1,4 +1,5 @@
 import sys
+import os
 import argparse
 import GEOparse
 from time import sleep
@@ -48,18 +49,6 @@ class SubsetInfo:
     # Retrieves instance variable
     def getoption(self):
         return self.option
-
-# def export_df_to_CSV(df):
-#     gds = GEOparse.get_GEO(filepath=fff)
-#     df = gds.table
-#     dfCols = df.columns
-#     # print(df.head(n=2))
-#     for col in dfCols:
-#         vals = df[col]
-#         # print(vals)
-#         if not valsNotNumeric(vals):
-#             print(f'{col} => NO NUMBERS\n')
-#         print(f'{col} => numbers\n')
 
 def get_subsetInfo_by_type(type, subsetInfo_list):
     obj_in_list = None
@@ -145,6 +134,7 @@ def create_df_from_geo_df(index_values, df, class_values):
     #       Class: [class values]
     #   }
     dictionary = {}
+    dictionary["Class"] = class_values
     n = len(index_values)
     for i in range(0, n):
         key = index_values[i]
@@ -153,16 +143,16 @@ def create_df_from_geo_df(index_values, df, class_values):
         j = i + 1
         # print progress processing rows
         if (j) % (600) == 0:
-            sys.stdout.write("\rProcessed %d rows out of %d" % (j, n))
+            sys.stdout.write("\r\tProcessed %d rows out of %d" % (j, n))
             sys.stdout.write("\r")
             sys.stdout.flush()
             sleep(0.25)
-    print(f"All {n} rows processed\n")
-    dictionary["Class"] = class_values
-    print("\nNew dataframe:")
+    print(f"\r\tAll {n} rows processed\n")
+    print("\tNew dataframe:")
     return pd.DataFrame.from_dict(dictionary)
 
 def get_table_data(geo_file, subsetInfo_list, option):
+    print("SOFT FILE PROCESSING STARTING...\n")
     # df: dataframe with all original data
     df = geo_file.table
     # get subset samples names (actual columns) and class values for each sample using the option selected by the user in order to get only the needed data in next step
@@ -171,19 +161,30 @@ def get_table_data(geo_file, subsetInfo_list, option):
     df_index = df[my_columns[0]].tolist()
     df_data = df[my_columns[1: ]]
     new_df = create_df_from_geo_df(index_values=df_index, df=df_data, class_values=row_class)
+    print(new_df)
+    print("\n--SOFT FILE PROCESSING FINISHED--\n")
     return new_df
+
+def export_df_to_CSV(df, file_name):
+    print('-'*200+'\n')
+    csv_file_name = file_name+".csv"
+    print("EXPORTING New Dataframe to CSV...\n")
+    # df.to_csv(csv_file_name, encoding='utf-8')
+    df.to_csv(csv_file_name, index=False)
+    cwd = os.getcwd()
+    print(f"\tNew dataframe has been saved to file {csv_file_name} in {cwd}\n")
+    print("--EXPORTING FINISHED--\n")
 
 if __name__ == '__main__':
     # PARSE INPUT ARGS
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f","--file",help="Input File with extension '.soft.gz'")
-    # parser.add_argument("-o","--output",help="Output File")
+    parser.add_argument("-f","--file",help="Required: Input File with extension '.soft.gz'")
+    parser.add_argument("-o","--output",help="Optional: Name for CSV Output File")
     args = parser.parse_args()
-    # if args.file and args.output and args.k and args.features and args.clasS:
     if args.file and args.file.endswith('.soft.gz'):
         print("Input OK")
     else:
-        print("Use --help for more info")
+        print("\tUse --help for more info\n")
         sys.exit()
 
     # GET GEO FILE & SUBSETS
@@ -194,11 +195,9 @@ if __name__ == '__main__':
     # GET TYPE TO USE FOR CLASS
     user_selected_option = prompt_info_to_select_option(args.file, subsetInfo_list, types_options_list)
     # GET DATA USING SELECTED OPTION
-    data = get_table_data(geo_file, subsetInfo_list, user_selected_option)
-    print(data)
-
-    # export_df_to_CSV("/home/antinux/TFM/Parallel-MRNET/parallel-MRNET/examples/GDS3795_full.soft.gz")
-
-    # "/home/antinux/TFM/Parallel-MRNET/parallel-MRNET/examples/GDS3244_full.soft.gz"
-    # "/home/antinux/TFM/Parallel-MRNET/parallel-MRNET/examples/GDS3795_full.soft.gz"
-    # "/home/antinux/TFM/Parallel-MRNET/parallel-MRNET/examples/GDS5037_full.soft.gz"
+    new_df = get_table_data(geo_file, subsetInfo_list, user_selected_option)
+    # EXPORT DATA TO CSV
+    file_name = geo_file.name
+    if args.output:
+        file_name = args.output
+    export_df_to_CSV(new_df, file_name)
