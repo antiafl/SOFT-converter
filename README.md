@@ -16,6 +16,6 @@ This tool has been implemented using Python 3.
 
 Follow these steps to execute the SOFT converter:
 * cd SOFT-converter/code
-* python3 processSoftFile.py -f ../examples/soft-files/GDS592_full.soft.gz
+* python3 processSoftFile.py -f ../examples/soft-files/GDS_file.soft.gz
 
 Is important to note this tool can use as input a file with any of these two extensions: '.soft.gz' or '.soft'.
