@@ -178,10 +178,10 @@ def export_df_to_CSV(df, file_name):
 if __name__ == '__main__':
     # PARSE INPUT ARGS
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f","--file",help="Required: Input File with extension '.soft.gz'")
+    parser.add_argument("-f","--file",help="Required: Input File with extension '.soft.gz' or '.soft'")
     parser.add_argument("-o","--output",help="Optional: Name for CSV Output File")
     args = parser.parse_args()
-    if args.file and args.file.endswith('.soft.gz'):
+    if args.file and (args.file.endswith('.soft.gz') or args.file.endswith('.soft')):
         print("Input OK")
     else:
         print("\tUse --help for more info\n")
