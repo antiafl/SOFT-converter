@@ -2,7 +2,7 @@ import sys
 import os
 import argparse
 import GEOparse
-from time import sleep
+import time
 import numpy as np
 import pandas as pd
 
@@ -146,7 +146,7 @@ def create_df_from_geo_df(index_values, df, class_values):
             sys.stdout.write("\r\tProcessed %d rows out of %d" % (j, n))
             sys.stdout.write("\r")
             sys.stdout.flush()
-            sleep(0.25)
+            time.sleep(0.25)
     print(f"\r\tAll {n} rows processed\n")
     print("\tNew dataframe:")
     return pd.DataFrame.from_dict(dictionary)
@@ -195,9 +195,17 @@ if __name__ == '__main__':
     # GET TYPE TO USE FOR CLASS
     user_selected_option = prompt_info_to_select_option(args.file, subsetInfo_list, types_options_list)
     # GET DATA USING SELECTED OPTION
+    st_execution = time.process_time()
     new_df = get_table_data(geo_file, subsetInfo_list, user_selected_option)
+    et_execution = time.process_time()
+    res_execution = et_execution - st_execution
+    print(f"\tEXECUTION TIME {res_execution}\n")
     # EXPORT DATA TO CSV
     file_name = geo_file.name
     if args.output:
         file_name = args.output
+    st_exportation = time.process_time()
     export_df_to_CSV(new_df, file_name)
+    et_exportation = time.process_time()
+    res_exportation = et_exportation - st_exportation
+    print(f"\tEXPORTATION TIME {res_exportation}\n")
