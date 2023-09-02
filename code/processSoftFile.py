@@ -3,7 +3,6 @@ import os
 import argparse
 import GEOparse
 import time
-import numpy as np
 import pandas as pd
 
 class SubsetInfo:
@@ -167,7 +166,8 @@ def get_table_data(geo_file, subsetInfo_list, option):
 
 def export_df_to_CSV(df, file_name):
     print('-'*200+'\n')
-    csv_file_name = file_name+".csv"
+    if (not file_name.endswith(".csv")):
+        csv_file_name = file_name+".csv"
     print("EXPORTING New Dataframe to CSV...\n")
     # df.to_csv(csv_file_name, encoding='utf-8')
     df.to_csv(csv_file_name, index=False)
@@ -178,22 +178,38 @@ def export_df_to_CSV(df, file_name):
 if __name__ == '__main__':
     # PARSE INPUT ARGS
     parser = argparse.ArgumentParser()
+    parser.add_argument("-a","--accessionNumber",help="Required: Accesion number to retrieve dataset directly form GEO Dataseets database")
     parser.add_argument("-f","--file",help="Required: Input File with extension '.soft.gz' or '.soft'")
     parser.add_argument("-o","--output",help="Optional: Name for CSV Output File")
     args = parser.parse_args()
     if args.file and (args.file.endswith('.soft.gz') or args.file.endswith('.soft')):
-        print("Input OK")
+        print(f"File {args.file}")
+    elif args.accessionNumber:
+        print(f"Accession number {args.accessionNumber}")
     else:
         print("\tUse --help for more info\n")
         sys.exit()
 
     # GET GEO FILE & SUBSETS
-    geo_file = GEOparse.get_GEO(filepath=args.file, silent=True)
+    geo_file = None
+    inputGDS = ""
+    if args.file:
+        geo_file = GEOparse.get_GEO(filepath=args.file, silent=True)
+        inputGDS = args.file
+    # if option == 2:
+    if args.accessionNumber:
+        try:
+            geo_file = GEOparse.get_GEO(geo=args.accessionNumber, geotype="GDS", destdir="./", how="full", silent=True)
+            inputGDS = args.accessionNumber
+        except:
+            print(f"ERROR: cannot download {args.accessionNumber}. ID could be incorrect or the data might not be public yet.")
+        finally:
+            sys.exit(1)
     # GET TYPES WITH DESCRIPTIONS, SUBSETS & OPTIONS
     subsetInfo_list = create_SubsetInfo_objs_from_subsets(geo_file.subsets)
     types_options_list = list(map(lambda x: x.option, subsetInfo_list))
     # GET TYPE TO USE FOR CLASS
-    user_selected_option = prompt_info_to_select_option(args.file, subsetInfo_list, types_options_list)
+    user_selected_option = prompt_info_to_select_option(inputGDS, subsetInfo_list, types_options_list)
     # GET DATA USING SELECTED OPTION
     st_execution = time.process_time()
     new_df = get_table_data(geo_file, subsetInfo_list, user_selected_option)
