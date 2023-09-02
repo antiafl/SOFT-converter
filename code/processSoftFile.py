@@ -194,9 +194,13 @@ if __name__ == '__main__':
     geo_file = None
     inputGDS = ""
     if args.file:
-        geo_file = GEOparse.get_GEO(filepath=args.file, silent=True)
-        inputGDS = args.file
-    # if option == 2:
+        try:
+            geo_file = GEOparse.get_GEO(filepath=args.file, silent=True)
+            inputGDS = args.file
+        except:
+            print(f"ERROR: cannot open file {args.file}. File/path might be incorrect or file might not exist in the given directory.")
+        finally:
+            sys.exit(1)
     if args.accessionNumber:
         try:
             geo_file = GEOparse.get_GEO(geo=args.accessionNumber, geotype="GDS", destdir="./", how="full", silent=True)
