@@ -178,13 +178,13 @@ def export_df_to_CSV(df, file_name):
 if __name__ == '__main__':
     # PARSE INPUT ARGS
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a","--accessionNumber",help="Required: Accesion number to retrieve dataset directly form GEO Dataseets database")
+    parser.add_argument("-a","--accessionNumber",help="Required: Dataset accession number to retrieve dataset directly from GEO Dataseets. Accession number must match GDSXXXX pattern")
     parser.add_argument("-f","--file",help="Required: Input File with extension '.soft.gz' or '.soft'")
     parser.add_argument("-o","--output",help="Optional: Name for CSV Output File")
     args = parser.parse_args()
     if args.file and (args.file.endswith('.soft.gz') or args.file.endswith('.soft')):
         print(f"File {args.file}")
-    elif args.accessionNumber:
+    elif args.accessionNumber and args.accessionNumber.startswith('GDS'):
         print(f"Accession number {args.accessionNumber}")
     else:
         print("\tUse --help for more info\n")
