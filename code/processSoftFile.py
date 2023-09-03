@@ -191,8 +191,6 @@ if __name__ == '__main__':
         sys.exit()
 
     # GET GEO FILE & SUBSETS
-    geo_file = None
-    inputGDS = ""
     if args.file:
         try:
             geo_file = GEOparse.get_GEO(filepath=args.file, silent=True)
@@ -202,7 +200,7 @@ if __name__ == '__main__':
             sys.exit(1)
     if args.accessionNumber:
         try:
-            geo_file = GEOparse.get_GEO(geo=args.accessionNumber, geotype="GDS", destdir="./", how="full", silent=True)
+            geo_file = GEOparse.get_GEO(geo=args.accessionNumber, destdir="./", silent=True)
             inputGDS = args.accessionNumber
         except:
             print(f"ERROR: cannot download {args.accessionNumber}. Accession number could be incorrect or the data might not be public yet.")
