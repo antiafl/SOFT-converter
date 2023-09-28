@@ -89,7 +89,7 @@ def create_SubsetInfo_objs_from_subsets(geo_subsets):
             subsetInfo_obj_list[subsetInfo_index] = SubsetInfo_obj
     return subsetInfo_obj_list
 
-def prompt_info_to_select_option(input_file, subsetInfo_list, options_list):
+def prompt_info_to_select_option(input_file, subsetInfo_list):
     print('-'*200+'\n')
     print("\nThe subsets in input file ("+input_file+") contain the following types and descriptions.\n")
     for si in subsetInfo_list:
@@ -97,6 +97,7 @@ def prompt_info_to_select_option(input_file, subsetInfo_list, options_list):
         print(f"\t\t descriptions: {si.descriptions_list}\n")
         print(f"\t\t subsets: {si.subsets_list}\n")
     selected_option = -1
+    options_list = list(map(lambda x: x.option, subsetInfo_list))
     while (selected_option not in options_list):
         input_option = input(f"\nSelect an option from the following {options_list}: \n")
         try:
@@ -208,24 +209,23 @@ if __name__ == '__main__':
 
     # GET TYPES WITH DESCRIPTIONS, SUBSETS & OPTIONS
     subsetInfo_list = create_SubsetInfo_objs_from_subsets(geo_file.subsets)
-    types_options_list = list(map(lambda x: x.option, subsetInfo_list))
 
     # GET TYPE TO USE FOR CLASS
-    user_selected_option = prompt_info_to_select_option(inputGDS, subsetInfo_list, types_options_list)
+    user_selected_option = prompt_info_to_select_option(inputGDS, subsetInfo_list)
 
     # GET DATA USING SELECTED OPTION
-    # st_execution = time.process_time()
+    st_execution = time.process_time()
     new_df = get_table_data(geo_file, subsetInfo_list, user_selected_option)
-    # et_execution = time.process_time()
-    # res_execution = et_execution - st_execution
-    # print(f"\tEXECUTION TIME {res_execution}\n")
+    et_execution = time.process_time()
+    res_execution = et_execution - st_execution
+    print(f"\tEXECUTION TIME {res_execution}\n")
 
     # EXPORT DATA TO CSV
     file_name = geo_file.name
     if args.output:
         file_name = args.output
-    # st_exportation = time.process_time()
+    st_exportation = time.process_time()
     export_df_to_CSV(new_df, file_name)
-    # et_exportation = time.process_time()
-    # res_exportation = et_exportation - st_exportation
-    # print(f"\tEXPORTATION TIME {res_exportation}\n")
+    et_exportation = time.process_time()
+    res_exportation = et_exportation - st_exportation
+    print(f"\tEXPORTATION TIME {res_exportation}\n")
